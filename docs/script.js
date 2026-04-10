@@ -22,17 +22,24 @@ const genres = [
     { id: 10752, name: "War" },
     { id: 37, name: "Western" }
 ];
+const sorts = [
+    { value: 'revenue.desc', name: 'Revenue' },
+    { value: 'popularity.desc', name: 'Popularity' },
+    { value: 'vote_average.desc', name: 'Rating' }
+];
 
 const main = document.getElementById('section');
 const form = document.getElementById('form');
 const search = document.getElementById('query');
 const loadMoreBtn = document.getElementById('loadMore');
 const genreContainer = document.querySelector('.genre');
+const sortContainer = document.querySelector('.sort-options');
 
 let currentPage = 1;
 let currentType = 'discover';
 let currentGenre = '';
 let currentSearch = '';
+let currentSort = 'revenue.desc';
 
 returnMovies();
 
@@ -43,7 +50,7 @@ function returnMovies(){
     } else if(currentType === 'genre'){
         url = `${BACKEND}/genre/${currentGenre}?page=${currentPage}`;
     } else {
-        url = `${BACKEND}?page=${currentPage}`;
+        url = `${BACKEND}?page=${currentPage}&sort=${currentSort}`;
     }
 
     fetch(url)
@@ -107,6 +114,20 @@ genres.forEach(g => {
 genreContainer.addEventListener('change', () => {
     currentGenre = document.querySelector('input[name="genre"]:checked').value;
     currentType = 'genre';
+    currentPage = 1;
+    main.innerHTML = '';
+    returnMovies();
+});
+
+sorts.forEach(s => {
+    const label = document.createElement('label');
+    label.innerHTML = `<input type="radio" name="sort" value="${s.value}"> ${s.name}`;
+    sortContainer.appendChild(label);
+});
+
+sortContainer.addEventListener('change', () => {
+    currentSort = document.querySelector('input[name="sort"]:checked').value;
+    currentType = 'discover';
     currentPage = 1;
     main.innerHTML = '';
     returnMovies();

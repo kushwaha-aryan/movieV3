@@ -380,3 +380,59 @@ body.light-mode #theme-toggle:hover {
     border-radius: 15px;
     transform: none;
 }
+
+.sort-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.sort-btn {
+    border: 3px solid lightskyblue;
+    border-radius: 5px;
+    font-size: 15px;
+    background-color: lightpink;
+}
+
+.sort-btn:hover {
+    font-size: 22px;
+    box-shadow: 0 0 100px greenyellow;
+}
+
+.sort-options {
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    padding: 10px;
+    display: none;
+}
+
+.sort-options input[type="radio"] {
+    display: none;
+}
+
+.sort-options label {
+    border: 2px solid deepskyblue;
+    display: block;
+    color: white;
+    margin: 5px 0;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sort-options label:hover {
+    background-color: aqua;
+    color: black;
+    box-shadow: 0 0 10px aquamarine;
+}
+
+.sort-wrapper:hover .sort-options {
+    display: block;
+}
