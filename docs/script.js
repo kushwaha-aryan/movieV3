@@ -1,4 +1,5 @@
-const BACKEND = 'https://moviev2-backend.onrender.com/api/v1/movies';
+const APILINK = 'https://moviev3-backend.onrender.com/api/v1/reviews/';
+const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 
 const genres = [

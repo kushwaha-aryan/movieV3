@@ -10,7 +10,7 @@ export default class ReviewsDAO {
             return
         }
         try {
-            reviews=await conn.db("reviews").collection("reviews");
+            reviews=await conn.db("moviev3").collection("reviews");
         }catch (e){
             console.error(`unable to establish connection handels in userDAO : ${e}`);
         }
