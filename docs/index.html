@@ -17,6 +17,30 @@
             <input type="search" id="query" name="q" placeholder="Search Movies...">
         </form>
     </div>
+
+    <button id="authToggleBtn">Login</button>
+</div>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <span id="closeModal" class="modal-close">&times;</span>
+
+        <div id="loggedOutView">
+            <h3 id="modalTitle">Login</h3>
+            <input type="text" id="authUsername" placeholder="Username"><br>
+            <input type="email" id="authEmail" placeholder="Email" style="display:none;"><br>
+            <input type="password" id="authPassword" placeholder="Password"><br>
+            <label><input type="checkbox" id="togglePassword"> Show password</label><br>
+            <button id="submitAuthBtn">Login</button>
+            <p id="toggleAuthMode">Don't have an account? <a href="#" id="switchToSignup">Sign up</a></p>
+        </div>
+
+        <div id="loggedInView" style="display:none;">
+            <h3>Welcome, <span id="welcomeUser"></span></h3>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </div>
 </div>
 
 <div class="genre-wrapper">

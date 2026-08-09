@@ -61,6 +61,7 @@ if (localStorage.getItem('token')) {
     main.appendChild(div_new)
 } else {
     const div_login = document.createElement('div');
+    div_login.className = 'login-prompt';
     div_login.innerHTML = `<p>Please log in to write a review.</p>`;
     main.appendChild(div_login);
 }

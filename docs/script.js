@@ -160,3 +160,123 @@ themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
 });
+
+
+// ===== AUTH =====
+const authToggleBtn = document.getElementById('authToggleBtn');
+const authModal = document.getElementById('authModal');
+const closeModal = document.getElementById('closeModal');
+const loggedOutView = document.getElementById('loggedOutView');
+const loggedInView = document.getElementById('loggedInView');
+const authUsername = document.getElementById('authUsername');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const togglePassword = document.getElementById('togglePassword');
+const submitAuthBtn = document.getElementById('submitAuthBtn');
+const modalTitle = document.getElementById('modalTitle');
+const switchToSignup = document.getElementById('switchToSignup');
+const welcomeUser = document.getElementById('welcomeUser');
+const logoutBtn = document.getElementById('logoutBtn');
+const toggleAuthMode = document.getElementById('toggleAuthMode');
+
+const AUTH_LINK = 'https://moviev3-backend.onrender.com/api/v1/users';
+let isSignupMode = false;
+
+function updateAuthUI() {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+        authToggleBtn.textContent = username;
+        welcomeUser.textContent = username;
+    } else {
+        authToggleBtn.textContent = 'Login';
+    }
+}
+
+authToggleBtn.addEventListener('click', () => {
+    authModal.style.display = 'flex';
+    const token = localStorage.getItem('token');
+    if (token) {
+        loggedInView.style.display = 'block';
+        loggedOutView.style.display = 'none';
+    } else {
+        loggedOutView.style.display = 'block';
+        loggedInView.style.display = 'none';
+    }
+});
+
+closeModal.addEventListener('click', () => {
+    authModal.style.display = 'none';
+});
+
+togglePassword.addEventListener('change', function() {
+    authPassword.type = this.checked ? 'text' : 'password';
+});
+
+switchToSignup.addEventListener('click', (e) => {
+    e.preventDefault();
+    isSignupMode = !isSignupMode;
+    if (isSignupMode) {
+        modalTitle.textContent = 'Sign Up';
+        authEmail.style.display = 'block';
+        submitAuthBtn.textContent = 'Sign Up';
+        toggleAuthMode.innerHTML = 'Already have an account? <a href="#" id="switchToSignup2">Login</a>';
+        document.getElementById('switchToSignup2').addEventListener('click', (ev) => {
+            ev.preventDefault();
+            isSignupMode = false;
+            modalTitle.textContent = 'Login';
+            authEmail.style.display = 'none';
+            submitAuthBtn.textContent = 'Login';
+            toggleAuthMode.innerHTML = 'Don\'t have an account? <a href="#" id="switchToSignup">Sign up</a>';
+        });
+    }
+});
+
+submitAuthBtn.addEventListener('click', async () => {
+    const username = authUsername.value;
+    const password = authPassword.value;
+
+    if (isSignupMode) {
+        const email = authEmail.value;
+        const res = await fetch(`${AUTH_LINK}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        alert('Registered! Now log in.');
+        isSignupMode = false;
+        modalTitle.textContent = 'Login';
+        authEmail.style.display = 'none';
+        submitAuthBtn.textContent = 'Login';
+    } else {
+        const res = await fetch(`${AUTH_LINK}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        authModal.style.display = 'none';
+        updateAuthUI();
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    authModal.style.display = 'none';
+    updateAuthUI();
+});
+
+updateAuthUI();
