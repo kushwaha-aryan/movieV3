@@ -2,8 +2,8 @@ const url = new URL(location.href);
 const movieId = url.searchParams.get('id');
 const movieTitle = url.searchParams.get('title');
 
- const APILINK = 'https://moviev3-backend.onrender.com/api/v1/reviews/';
- const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
+const APILINK = 'https://moviev3-backend.onrender.com/api/v1/reviews/';
+const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
 
 // const APILINK = 'http://localhost:8000/api/v1/reviews/';
 // const BACKEND = 'http://localhost:8000/api/v1/movies';
@@ -42,35 +42,38 @@ const title = document.getElementById('title');
 
 title.textContent = movieTitle;
 
-const div_new = document.createElement( 'div');
-div_new.innerHTML =`
-    <div class="row">
-        <div class="column">
-            <div class="card">
-                New Review
-                <p><strong>Review: </strong>
-                    <input type="text" id="new_review" value="">
-                </p>
-                <p><strong>User: </strong>
-                    <input type="text" id="new_user" value="">
-                </p>
-                <p><a href="#" onclick="saveReview('new_review', 'new_user' )">💾</a>
-                </p>
+if (localStorage.getItem('token')) {
+    const div_new = document.createElement( 'div');
+    div_new.innerHTML =`
+        <div class="row">
+            <div class="column">
+                <div class="card">
+                    New Review
+                    <p><strong>Review: </strong>
+                        <input type="text" id="new_review" value="">
+                    </p>
+                    <p><a href="#" onclick="saveReview('new_review')">💾</a>
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-`
-
-main.appendChild(div_new)
+    `
+    main.appendChild(div_new)
+} else {
+    const div_login = document.createElement('div');
+    div_login.innerHTML = `<p>Please log in to write a review.</p>`;
+    main.appendChild(div_login);
+}
 
 function returnReviews(url) {
     fetch(url + "movie/" + movieId)
         .then(res => res.json())
         .then(function (data) {
-            console.log(data);
+            const currentUsername = localStorage.getItem('username');
 
             data.forEach(review => {
                 const div_card = document.createElement('div');
+                const isOwner = review.user === currentUsername;
 
                 div_card.innerHTML = `
                     <div class="row">                    
@@ -79,8 +82,10 @@ function returnReviews(url) {
                                 <p><strong>Review: </strong>${review.review}</p>
                                 <p><strong>User: </strong>${review.user}</p>
                                 <p>
-                                    <a href="#" onclick="editReview('${review._id}', '${review.review}', '${review.user}')">✏️</a> 
+                                    ${isOwner ? `
+                                    <a href="#" onclick="editReview('${review._id}', '${review.review}')">✏️</a> 
                                     <a href="#" onclick="deleteReview('${review._id}')">🗑️</a>
+                                    ` : ''}
                                 </p>
                             </div>
                         </div>
@@ -92,30 +97,31 @@ function returnReviews(url) {
         });
 }
 
-function editReview(id, review, user) {
+function editReview(id, review) {
     const element = document.getElementById(id);
     const reviewInputId = "review" + id;
-    const userInputId = "user" + id;
 
     element.innerHTML = `
         <p><strong>Review: </strong>
             <input type="text" id="${reviewInputId}" value="${review}">
         </p>
-        <p><strong>User: </strong>
-            <input type="text" id="${userInputId}" value="${user}">
-        </p>
         <p>
-            <a href="#" onclick="saveReview('${reviewInputId}', '${userInputId}', '${id}')">💾</a>
+            <a href="#" onclick="saveReview('${reviewInputId}', '${id}')">💾</a>
         </p>
     `;
 }
 
-function saveReview(reviewInputId, userInputId, id="") {
+function saveReview(reviewInputId, id="") {
     const review = document.getElementById(reviewInputId).value;
-    const user = document.getElementById(userInputId).value;
+    const token = localStorage.getItem('token');
 
-    if(!user || !review) {
-        alert("Please fill in both fields");
+    if(!review) {
+        alert("Please fill in the review");
+        return;
+    }
+
+    if (!token) {
+        alert("Please log in first");
         return;
     }
 
@@ -124,12 +130,13 @@ function saveReview(reviewInputId, userInputId, id="") {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({"user": user, "review": review})
+            body: JSON.stringify({"review": review})
         }).then(res => res.json())
             .then(res => {
-                console.log(res)
+                if (res.error) { alert(res.error); return; }
                 location.reload();
             });
     }else {
@@ -137,12 +144,13 @@ function saveReview(reviewInputId, userInputId, id="") {
             method: 'POST',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({"user": user, "review": review, "movieId": movieId})
+            body: JSON.stringify({"review": review, "movieId": movieId})
         }) . then( res => res.json())
             .then(res => {
-                console.log(res)
+                if (res.error) { alert(res.error); return; }
                 location.reload();
             });
     }
@@ -150,12 +158,20 @@ function saveReview(reviewInputId, userInputId, id="") {
 }
 
 function deleteReview(id) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("Please log in first");
+        return;
+    }
     fetch(APILINK + id, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
     })
         .then(res => res.json())
         .then(res => {
-            console.log(res)
+            if (res.error) { alert(res.error); return; }
             location.reload();
         })
 }

@@ -1,4 +1,4 @@
-# MovieV2
+# MovieV3
 A full stack movie browsing and review app.
 
-🌐 [webSite](https://kushwaha-aryan.github.io/MovieV2/)
+🌐 [webSite](https://kushwaha-aryan.github.io/movieV3/)
