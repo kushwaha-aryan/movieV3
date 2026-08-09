@@ -16,10 +16,11 @@ export default class ReviewsDAO {
         }
     }
 
-    static async addReview(movieId,user,review) {
+    static async addReview(movieId,userId,user,review) {
         try {
             const reviewDoc={
                 movieId:movieId,
+                userId:userId,
                 user:user,
                 review:review
             }
@@ -40,11 +41,11 @@ export default class ReviewsDAO {
         }
     }
 
-    static async updateReview(reviewId, user, review) {
+    static async updateReview(reviewId, userId, review) {
         try {
             const updateResponse = await reviews.updateOne(
-                {_id: new ObjectId(reviewId) },
-                { $set: { user: user, review: review } }
+                {_id: new ObjectId(reviewId), userId: userId },
+                { $set: { review: review } }
             )
 
             return updateResponse
@@ -54,10 +55,11 @@ export default class ReviewsDAO {
         }
     }
 
-    static async deleteReview(reviewId) {
+    static async deleteReview(reviewId, userId) {
         try {
             const deleteResponse = await reviews.deleteOne({
                 _id: new ObjectId(reviewId),
+                userId: userId
             })
 
             return deleteResponse
@@ -68,7 +70,6 @@ export default class ReviewsDAO {
     }
 
     static async getReviewsByMovieId(movieId) {
-        console.log("mov", movieId)
         try {
             const cursor = await reviews.find({ movieId: parseInt(movieId) })
             return cursor.toArray()
@@ -78,7 +79,6 @@ export default class ReviewsDAO {
         }
     }
 }
-
 
 /*
 Teacher (Linux/Mac):

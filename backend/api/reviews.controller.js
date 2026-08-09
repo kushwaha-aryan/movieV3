@@ -5,10 +5,12 @@ export default class ReviewsController {
         try {
             const movieId = parseInt(req.body.movieId)
             const review = req.body.review
-            const user = req.body.user
+            const userId = req.userId
+            const user = req.username
 
             const reviewResponse = await ReviewsDAO.addReview(
                 movieId,
+                userId,
                 user,
                 review
             )
@@ -37,11 +39,11 @@ export default class ReviewsController {
         try {
             const reviewId = req.params.id
             const review = req.body.review
-            const user = req.body.user
+            const userId = req.userId
 
             const reviewResponse = await ReviewsDAO.updateReview(
                 reviewId,
-                user,
+                userId,
                 review
             )
 
@@ -52,9 +54,8 @@ export default class ReviewsController {
             }
 
             if (reviewResponse.modifiedCount === 0) {
-                throw new Error(
-                    "unable to update review"
-                )
+                res.status(403).json({ error: "not authorized to edit this review" })
+                return;
             }
 
             res.json({ status: "success" })
@@ -66,7 +67,14 @@ export default class ReviewsController {
     static async apiDeleteReview(req, res, next) {
         try {
             const reviewId = req.params.id
-            const reviewResponse = await ReviewsDAO.deleteReview(reviewId)
+            const userId = req.userId
+            const reviewResponse = await ReviewsDAO.deleteReview(reviewId, userId)
+
+            if (reviewResponse.deletedCount === 0) {
+                res.status(403).json({ error: "not authorized to delete this review" })
+                return;
+            }
+
             res.json({ status: "success" })
         } catch (e) {
             res.status(500).json({ error: e.message })
