@@ -1,5 +1,5 @@
-const APILINK = 'https://moviev3-backend.onrender.com/api/v1/reviews/';
-const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
+ const APILINK = 'https://moviev3-backend.onrender.com/api/v1/reviews/';
+ const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
 // const APILINK = 'http://localhost:8000/api/v1/reviews/';
 // const BACKEND = 'http://localhost:8000/api/v1/movies';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
@@ -100,6 +100,27 @@ function returnMovies(){
                 year.innerHTML = elements.release_date?.split("-")[0];
                 overview.innerHTML = elements.overview;
 
+                if (localStorage.getItem('token')) {
+                    const savedBtns = document.createElement('div');
+                    savedBtns.classList.add('saved-btns');
+
+                    const favBtn = document.createElement('button');
+                    favBtn.textContent = '🤍';
+                    favBtn.className = 'save-btn';
+                    favBtn.dataset.saved = 'false';
+                    favBtn.onclick = () => toggleSaved(elements.id, elements.title, elements.poster_path, 'favorite', favBtn);
+
+                    const watchBtn = document.createElement('button');
+                    watchBtn.textContent = '📌';
+                    watchBtn.className = 'save-btn';
+                    watchBtn.dataset.saved = 'false';
+                    watchBtn.onclick = () => toggleSaved(elements.id, elements.title, elements.poster_path, 'watchlist', watchBtn);
+
+                    savedBtns.appendChild(favBtn);
+                    savedBtns.appendChild(watchBtn);
+                    div_card.appendChild(savedBtns);
+                }
+
                 div_card.appendChild(image);
                 div_card.appendChild(title);
                 div_card.appendChild(movieInfo);
@@ -180,6 +201,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 const toggleAuthMode = document.getElementById('toggleAuthMode');
 
 const AUTH_LINK = 'https://moviev3-backend.onrender.com/api/v1/users';
+//const AUTH_LINK = 'http://localhost:8000/api/v1/users';
 let isSignupMode = false;
 
 function updateAuthUI() {
@@ -280,3 +302,46 @@ logoutBtn.addEventListener('click', () => {
 });
 
 updateAuthUI();
+
+
+
+
+
+
+// ===== FAVORITES / WATCHLIST =====
+//const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
+const SAVED_LINK = 'http://localhost:8000/api/v1/saved';
+
+async function toggleSaved(movieId, movieTitle, posterPath, type, btn) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in first');
+        return;
+    }
+
+    const isSaved = btn.dataset.saved === 'true';
+
+    if (isSaved) {
+        const res = await fetch(`${SAVED_LINK}/${movieId}?type=${type}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        btn.dataset.saved = 'false';
+        btn.textContent = type === 'favorite' ? '🤍' : '📌';
+    } else {
+        const res = await fetch(`${SAVED_LINK}/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ movieId: String(movieId), movieTitle, posterPath, type })
+        });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return; }
+        btn.dataset.saved = 'true';
+        btn.textContent = type === 'favorite' ? '❤️' : '📍';
+    }
+}

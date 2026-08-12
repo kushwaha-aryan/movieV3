@@ -5,6 +5,7 @@ import app from './server.js';
 import mongodb from "mongodb"
 import ReviewsDAO from "./dao/reviewsDAO.js"
 import UsersDAO from "./dao/usersDAO.js"
+import SavedMoviesDAO from "./dao/savedMoviesDAO.js"
 
 const MongoClient = mongodb.MongoClient;
 const mongo_username=process.env['MONGODB_USERNAME'];
@@ -26,6 +27,7 @@ MongoClient.connect(
     .then(async client =>{
         await ReviewsDAO.injectDB(client)
         await UsersDAO.injectDB(client)
+        await SavedMoviesDAO.injectDB(client)
         app.listen(port,()=>{
             console.log(`Listening on port ${port}`);
         })
