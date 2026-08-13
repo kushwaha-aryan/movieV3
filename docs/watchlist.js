@@ -44,9 +44,40 @@ async function loadWatchlist() {
             div_card.remove();
         };
 
+        const watchedBtn = document.createElement('button');
+        watchedBtn.textContent = 'Mark as Watched';
+        watchedBtn.className = 'save-btn';
+        watchedBtn.onclick = async () => {
+            if (!confirm(`Mark "${movie.movieTitle}" as watched?`)) return;
+
+            // remove from watchlist
+            await fetch(`${SAVED_LINK}/${movie.movieId}?type=watchlist`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            // add to watched
+            await fetch(`${SAVED_LINK}/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    movieId: movie.movieId,
+                    movieTitle: movie.movieTitle,
+                    posterPath: movie.posterPath,
+                    type: 'watched'
+                })
+            });
+
+            div_card.remove();
+        };
+
         div_card.appendChild(image);
         div_card.appendChild(title);
         div_card.appendChild(removeBtn);
+        div_card.appendChild(watchedBtn);
         main.appendChild(div_card);
     });
 }
