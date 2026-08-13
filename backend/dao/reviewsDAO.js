@@ -80,23 +80,3 @@ export default class ReviewsDAO {
     }
 }
 
-/*
-Teacher (Linux/Mac):
-curl -X POST URL -H "Content-Type: application/json" -d '{"key": "value"}'
-
-You (Windows PowerShell):
-Invoke-WebRequest -Uri URL -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"key": "value"}'
-
-in gitBash instead of Local
-curl -X POST http://localhost:8000/api/v1/reviews/new -H "Content-Type: application/json" -d '{"movieId": 12, "user": "quincy", "review": "bad movie"}'
-*/
-
-/*
-curl -X POST http://localhost:8000/api/v1/reviews/new -H "Content-Type: application/json" -d '{"movieId": 717724, "user": "quincy", "review": "bad movie"}'
-
-curl -X GET http://localhost:8000/api/v1/reviews/69c729c844f723b002257ed9
-
-curl -X PUT http://localhost:8000/api/v1/reviews/69c729c844f723b002257ed9 -H "Content-Type: application/json" -d '{"user": "quincy" , "review": "not so bad movie"}'
-
-curl -X DELETE http://localhost:8000/api/v1/reviews/69c729d944f723b002257eda
- */
