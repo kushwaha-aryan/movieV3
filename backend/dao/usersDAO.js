@@ -52,4 +52,44 @@ export default class UsersDAO {
             return { error: e };
         }
     }
+
+    static async incrementRecommendCount(userId) {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const user = await users.findOne({ _id: new ObjectId(userId) });
+
+            if (user.recommendDate !== today) {
+                await users.updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: { recommendDate: today, recommendCount: 1 } }
+                );
+                return 1;
+            } else {
+                const newCount = (user.recommendCount || 0) + 1;
+                await users.updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: { recommendCount: newCount } }
+                );
+                return newCount;
+            }
+        } catch (e) {
+            console.error(`unable to increment recommend count: ${e}`);
+            return null;
+        }
+    }
+
+    static async getRecommendCount(userId) {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const user = await users.findOne({ _id: new ObjectId(userId) });
+            if (user.recommendDate !== today) {
+                return 0;
+            }
+            return user.recommendCount || 0;
+        } catch (e) {
+            console.error(`unable to get recommend count: ${e}`);
+            return 0;
+        }
+    }
 }
+
