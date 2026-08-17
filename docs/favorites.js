@@ -1,4 +1,4 @@
-const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
+ const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
 //const SAVED_LINK = 'http://localhost:8000/api/v1/saved';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 const main = document.getElementById('section');
@@ -57,4 +57,60 @@ const themeToggle = document.getElementById('theme-toggle');
 themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     themeToggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+});
+
+
+const RECOMMEND_LINK = 'https://moviev3-backend.onrender.com/api/v1/recommend';
+//const RECOMMEND_LINK = 'http://localhost:8000/api/v1/recommend';
+
+const recommendBtn = document.getElementById('recommendBtn');
+const recommendationResult = document.getElementById('recommendationResult');
+const saved = localStorage.getItem('lastRecommendation');
+if (saved) {
+    const parsed = JSON.parse(saved);
+    recommendationResult.innerHTML = parsed.text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+    const usageDiv = document.createElement('div');
+    usageDiv.className = 'recommend-usage';
+    usageDiv.textContent = `Used ${parsed.usageCount}/${parsed.dailyLimit} recommendations today`;
+    recommendationResult.appendChild(usageDiv);
+}
+
+recommendBtn.addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please log in first');
+        return;
+    }
+
+    recommendBtn.disabled = true;
+    recommendationResult.innerHTML = '⏳ Loading recommendations...';
+
+    const res = await fetch(RECOMMEND_LINK, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    recommendBtn.disabled = false;
+
+    if (data.error) {
+        recommendationResult.innerHTML = `<p style="color: hotpink;">${data.error}</p>`;
+        return;
+    }
+
+    recommendationResult.innerHTML = data.recommendation
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+    localStorage.setItem('lastRecommendation', JSON.stringify({
+        text: data.recommendation,
+        usageCount: data.usageCount,
+        dailyLimit: data.dailyLimit
+    }));
+
+    const usageDiv = document.createElement('div');
+    usageDiv.className = 'recommend-usage';
+    usageDiv.textContent = `Used ${data.usageCount}/${data.dailyLimit} recommendations today`;
+    recommendationResult.appendChild(usageDiv);
 });

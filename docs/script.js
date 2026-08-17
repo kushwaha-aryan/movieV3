@@ -1,5 +1,5 @@
- const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
-// const BACKEND = 'http://localhost:8000/api/v1/movies';
+const BACKEND = 'https://moviev3-backend.onrender.com/api/v1/movies';
+//const BACKEND = 'http://localhost:8000/api/v1/movies';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 
 const genres = [
@@ -198,7 +198,7 @@ const welcomeUser = document.getElementById('welcomeUser');
 const logoutBtn = document.getElementById('logoutBtn');
 const toggleAuthMode = document.getElementById('toggleAuthMode');
 
-const AUTH_LINK = 'https://moviev3-backend.onrender.com/api/v1/users';
+ const AUTH_LINK = 'https://moviev3-backend.onrender.com/api/v1/users';
 //const AUTH_LINK = 'http://localhost:8000/api/v1/users';
 let isSignupMode = false;
 
@@ -307,7 +307,7 @@ updateAuthUI();
 
 
 // ===== FAVORITES / WATCHLIST =====
-const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
+ const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
 //const SAVED_LINK = 'http://localhost:8000/api/v1/saved';
 
 async function toggleSaved(movieId, movieTitle, posterPath, type, btn) {

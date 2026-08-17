@@ -609,3 +609,41 @@ body.light-mode .save-btn {
     background-color: #ffffff;
     color: #0f172a;
 }
+
+#recommendationResult {
+    background-color: #151f30;
+    border: 2px solid deepskyblue;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    line-height: 1.6;
+}
+
+#recommendationResult strong {
+    color: lightskyblue;
+}
+
+body.light-mode #recommendationResult {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 2px solid #60a5fa;
+}
+
+body.light-mode #recommendationResult strong {
+    color: #2563eb;
+}
+
+#recommendBtn {
+    font-size: 1rem;
+    padding: 10px 20px;
+}
+
+.recommend-usage {
+    color: lightskyblue;
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+body.light-mode .recommend-usage {
+    color: #2563eb;
+}

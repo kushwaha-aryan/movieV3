@@ -1,4 +1,4 @@
-const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
+ const SAVED_LINK = 'https://moviev3-backend.onrender.com/api/v1/saved';
 //const SAVED_LINK = 'http://localhost:8000/api/v1/saved';
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 const main = document.getElementById('section');
