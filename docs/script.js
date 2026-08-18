@@ -301,7 +301,13 @@ logoutBtn.addEventListener('click', () => {
 
 updateAuthUI();
 
-
+document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== search) {
+        e.preventDefault();
+        search.value = '';
+        search.focus();
+    }
+});
 
 
 
