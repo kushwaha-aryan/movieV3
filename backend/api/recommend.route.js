@@ -39,10 +39,14 @@ router.route("/").get(auth, async (req, res) => {
         );
 
         const data = await geminiRes.json();
-        const recommendation = data.candidates?.[0]?.content?.parts?.[0]?.text || "No recommendations found.";
+        const recommendation = data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+
+        if (!recommendation) {
+            res.status(500).json({ error: "AI service returned no recommendation. Please try again." });
+            return;
+        }
 
         const newCount = await UsersDAO.incrementRecommendCount(userId);
-
         res.json({ status: "success", recommendation, usageCount: newCount, dailyLimit: DAILY_LIMIT });
     } catch (e) {
         res.status(500).json({ error: e.message });
