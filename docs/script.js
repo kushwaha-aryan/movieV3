@@ -42,9 +42,31 @@ let currentGenre = '';
 let currentSearch = '';
 let currentSort = 'revenue.desc';
 
+const loader = document.getElementById('loader');
+
+function showLoader() {
+    if (loader) {
+        if (!document.body.contains(loader)) main.appendChild(loader);
+        loader.style.display = 'flex';
+    }
+}
+
+function hideLoader() {
+    if (loader) loader.style.display = 'none';
+}
+
+function setLoaderMessage(msg, sub) {
+    if (loader) {
+        const msgEl = loader.querySelector('.loader-msg');
+        const subEl = loader.querySelector('.loader-submsg');
+        if (msg && msgEl) msgEl.textContent = msg;
+        if (sub && subEl) subEl.textContent = sub;
+    }
+}
+
 returnMovies();
 
-function returnMovies(){
+async function returnMovies(){
     let url;
     if(currentType === 'search'){
         url = `${BACKEND}/search?q=${currentSearch}&page=${currentPage}`;
@@ -54,10 +76,27 @@ function returnMovies(){
         url = `${BACKEND}?page=${currentPage}&sort=${currentSort}`;
     }
 
-    fetch(url)
-        .then(res => res.json())
-        .then(function(data){
-            data.results.forEach(elements => {
+    hideLoader();
+
+    // Only show the spinner if the request actually takes a while
+    // (e.g. Render free-tier cold start). Fast/warm loads never flash it.
+    let loaderShown = false;
+    const showTimer = setTimeout(() => {
+        setLoaderMessage('Waking up the server...', 'Free tier takes a sec, hang tight!');
+        showLoader();
+        loaderShown = true;
+    }, 400);
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        clearTimeout(showTimer);
+        if (data.results.length === 0) {
+            if (loaderShown) hideLoader();
+            main.innerHTML = '<p style="color:white; text-align:center;">No movies found.</p>';
+            return;
+        }
+        data.results.forEach(elements => {
                 const div_card = document.createElement('div');
                 div_card.setAttribute('class', 'card');
 
@@ -124,7 +163,13 @@ function returnMovies(){
                 div_card.appendChild(movieInfo);
                 main.appendChild(div_card);
             });
-        });
+        if (loaderShown) hideLoader();
+    } catch (err) {
+        clearTimeout(showTimer);
+        console.error(err);
+        if (loaderShown) hideLoader();
+        main.innerHTML = '<p style="color:hotpink; text-align:center;">Oops! Something went wrong. Try loading the page again.</p>';
+    }
 }
 
 genres.forEach(g => {

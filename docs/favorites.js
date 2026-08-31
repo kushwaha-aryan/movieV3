@@ -3,6 +3,19 @@
 const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
 const main = document.getElementById('section');
 
+const loader = document.getElementById('loader');
+
+function showLoaderFav() {
+    if (loader) {
+        if (!document.body.contains(loader)) main.appendChild(loader);
+        loader.style.display = 'flex';
+    }
+}
+
+function hideLoaderFav() {
+    if (loader) loader.style.display = 'none';
+}
+
 async function loadFavorites() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -10,10 +23,22 @@ async function loadFavorites() {
         return;
     }
 
+    hideLoaderFav();
+
+    // Only show the spinner if the request takes a while (cold start).
+    let loaderShown = false;
+    const showTimer = setTimeout(() => {
+        showLoaderFav();
+        loaderShown = true;
+    }, 400);
+
     const res = await fetch(`${SAVED_LINK}/list/favorite`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     const movies = await res.json();
+
+    clearTimeout(showTimer);
+    if (loaderShown) hideLoaderFav();
 
     if (movies.length === 0) {
         main.innerHTML = '<p style="color:white; text-align:center;">No favorites yet.</p>';
@@ -66,6 +91,35 @@ const RECOMMEND_LINK = 'https://moviev3-backend.onrender.com/api/v1/recommend';
 const recommendBtn = document.getElementById('recommendBtn');
 const recommendationResult = document.getElementById('recommendationResult');
 const saved = localStorage.getItem('lastRecommendation');
+
+const spinnerHTML = `
+    <div class="recommendation-spinner">
+        <div class="spinner-wrap">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-center">🎬</div>
+        </div>
+        <div class="spinner-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="loader-msg">Waking up the server...</div>
+        <div class="loader-submsg">AI is picking recommendations for you, hang tight!</div>
+    </div>
+`;
+
+function showRecommendSpinner() {
+    setRecommendLoaderMessage('Waking up the server...', 'AI is picking recommendations for you, hang tight!');
+    recommendationResult.innerHTML = spinnerHTML;
+}
+
+function setRecommendLoaderMessage(msg, sub) {
+    const msgEl = document.querySelector('.loader-msg');
+    const subEl = document.querySelector('.loader-submsg');
+    if (msgEl) msgEl.textContent = msg;
+    if (subEl) subEl.textContent = sub;
+}
+
 if (saved) {
     const parsed = JSON.parse(saved);
     recommendationResult.innerHTML = parsed.text
@@ -85,14 +139,25 @@ recommendBtn.addEventListener('click', async () => {
     }
 
     recommendBtn.disabled = true;
-    recommendationResult.innerHTML = '⏳ Loading recommendations...';
+
+    // Only show the AI spinner if it actually takes a while (Gemini + cold start).
+    let loaderShown = false;
+    const showTimer = setTimeout(() => {
+        showRecommendSpinner();
+        loaderShown = true;
+    }, 400);
 
     const res = await fetch(RECOMMEND_LINK, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await res.json();
 
+    clearTimeout(showTimer);
     recommendBtn.disabled = false;
+
+    if (loaderShown) {
+        recommendationResult.innerHTML = '';
+    }
 
     if (data.error) {
         recommendationResult.innerHTML = `<p style="color: hotpink;">${data.error}</p>`;
